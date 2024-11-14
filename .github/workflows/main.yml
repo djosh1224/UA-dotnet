@@ -25,7 +25,7 @@ jobs:
 
       - name: Build the project
         run: |
-          dotnet build ./app/app.sln  ## Adjust path to your solution file
+          dotnet build ## Adjust path to your solution file
         shell: bash
 
       # - name: Configure Git user
