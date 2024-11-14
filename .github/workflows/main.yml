@@ -1,11 +1,11 @@
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
      branches:
        - test
-       - main
+       - master
      paths:
        - 'app/**'
        - '.github/**'
