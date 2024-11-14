@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+     branches:
+       - test
+       - main
+     paths:
+       - 'app/**'
+       - '.github/**'
+
+jobs:
+  veracode_agent_sca:
+    name: SCA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0.x'  # Specify your desired .NET version
+
+      - name: Build the project
+        run: |
+          dotnet build ./app/app.sln  ## Adjust path to your solution file
+        shell: bash
+
+      # - name: Configure Git user
+      #   run: |
+      #     git config --global user.email "dipti.joshi@capgemini.com"
+      #     git config --global user.name "diptjosh"
+
+      - name: Veracode Agent SCA Scan 
+        env:
+         SRCCLR_SCM_TYPE: GITHUB
+         SRCCLR_SCM_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+         PR_ON: "High,Medium"     
+         NO_BREAKING_UPDATES: "false"  # Allow breaking updates (false = will not block major version upgrades)
+         IGNORE_CLOSE_PRS: "true"  
+        run: |
+          cd app
+          pwd
+          export SRCCLR_SCM_TYPE="GITHUB"
+          export SRCCLR_SCM_TOKEN="${{ secrets.SCM_TOKEN }}"
+          export SRCCLR_API_TOKEN=${{ secrets.SRCCLR_TOKEN }}
+          export SRCCLR_SKIP_DOTNET_RESTORE=true
+          curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan --update-advisor --pull-request
+        shell: bash
